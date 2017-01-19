@@ -21,6 +21,11 @@ class TypeOne(scrapy.Spider):
         item = CrawlerType1Item()
         for element in response.xpath(self.crawl_source['XPATH']):
             text = element.xpath(self.crawl_source['TEXT_XPATH']).extract()
+            heading = ""
+            if 'HEADING_XPATH' in self.crawl_source:
+                heading = element.xpath(self.crawl_source['HEADING_XPATH']).extract()
+                heading = [t.strip() for t in heading]
+            item['heading'] = " ".join(heading)
             item['text'] = utils.extract_text(" ".join(text))
             item['img'] = element.xpath(self.crawl_source['IMG_XPATH']).extract()
 

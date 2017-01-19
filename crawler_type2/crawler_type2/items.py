@@ -11,5 +11,6 @@ from scrapy import Item, Field
 class CrawlerType2Item(Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
+    heading = Field()
     text = Field()
     img = Field()
