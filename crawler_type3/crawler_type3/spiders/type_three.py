@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 import scrapy
-import crawler_type2.config as config
-from crawler_type2.items import CrawlerType2Item
+import crawler_type3.config as config
+from crawler_type3.items import CrawlerType3Item
 import urlparse
 
 
-class TypeTwo(scrapy.Spider):
-    name = 'crawler_type2'
+class TypeThree(scrapy.Spider):
+    name = 'crawler_type3'
 
     def start_requests(self):
         source = getattr(self, 'source', None)
@@ -19,6 +19,17 @@ class TypeTwo(scrapy.Spider):
 
     def parse(self, response):
 
+        for href in response.xpath(self.crawl_source['CATEGORY_XPATH']):
+            url = urlparse.urljoin(self.crawl_source['BASE_URL'], href.extract())
+            print 'Sending request for url : ' + url
+            req = scrapy.Request(url, callback=self.parse_category)
+            # for key in response.meta.keys():
+            #     req.meta[key] = response.meta[key]
+
+            yield req
+
+    def parse_category(self, response):
+
         for href in response.xpath(self.crawl_source['LIST_PAGE_XPATH']):
             url = urlparse.urljoin(self.crawl_source['BASE_URL'], href.extract())
             print 'Sending request for url : ' + url
@@ -30,8 +41,8 @@ class TypeTwo(scrapy.Spider):
 
     def parse_item(self, response):
         print "parse item for url %s" % (response.request.url)
-        item = CrawlerType2Item()
-        for element in response.xpath(self.crawl_source['BLOG_CONTENT_XPATH']):
+        for element in response.xpath(self.crawl_source['ELEMENTS_XPATH']):
+            item = CrawlerType3Item()
             heading = element.xpath(self.crawl_source['HEADING_XPATH']).extract()
             text = element.xpath(self.crawl_source['TEXT_XPATH']).extract()
             heading = [t.strip() for t in heading]
@@ -40,5 +51,5 @@ class TypeTwo(scrapy.Spider):
             item['text'] = " ".join(text)
             item['img'] = element.xpath(self.crawl_source['IMG_XPATH']).extract()
 
-        if 'text' in item and len(item['text']) > 0:
-            yield item
+            if 'text' in item and len(item['text']) > 0:
+                yield item
